@@ -1,0 +1,77 @@
+<html>
+    <head>
+        <script src="jquery-2.1.4.min.js"></script>
+        <script src="longest-common-substring.js"></script>
+        <script src="bundle.js"></script>
+
+        <script>
+            String.prototype.replaceAt = function(index, replacement) {
+                return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+            }
+
+            String.prototype.deleteAt = function(index) {
+                return this.substring(0,index - 1) + this.substring(index, this.length)
+            }
+
+            String.prototype.insertAt = function(index, insertion) {
+                return this.substring(0,index) + insertion + this.substring(index, this.length)
+            }
+
+
+            $(document).ready(function(){
+                $("#submitButton").click(function(e){
+                    e.preventDefault();
+                    let current = $("#name").val();
+                    let result = NameCorrector.findClosestName(current);
+                    let i = 1;
+                    console.log(result);
+                    totalDeletions = 0;
+                    var loop = setInterval(function(){
+
+                        var fromIdx = result.levenpath[i].i - totalDeletions;
+                        var toIdx = result.levenpath[i].j;
+
+                        console.log(result.levenpath[i].type  );
+
+
+                        current = $("#name").val();
+                        updated = current;
+                        if(result.levenpath[i].type == "replace")
+                        {
+                            updated = current.replaceAt(fromIdx-1, result.toName.charAt(toIdx-1));
+                        }
+
+                        else if(result.levenpath[i].type == "delete")
+                        {
+                            console.log("delete at : " + fromIdx);
+                            updated = current.deleteAt(fromIdx);
+                            totalDeletions++;
+                        }
+
+                        else if(result.levenpath[i].type == "insert")
+                        {
+                            updated = current.insertAt(fromIdx-1, result.toName.charAt(toIdx-1));
+                        }
+
+                        $("#name").val(updated);
+
+
+                        i++;
+                        if(i >= result.levenpath.length)
+                        {
+                            clearInterval(loop);
+                        }
+                    }, 250);
+                });
+            });
+            </script>
+    </head>
+    <body>
+        <h1>Name Corrector</h1>
+
+        <form>
+            <p><label>Your name:</label><input id="name"></input></p>
+            <p><label></label> <input id="submitButton" type="submit" /> </p>
+        </form>
+    </body>
+</html>
